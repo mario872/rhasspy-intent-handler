@@ -1,0 +1,5 @@
+pynput
+requests
+HomeAssistant-API
+fastapi[standard]
+uvicorn
