@@ -1,0 +1,19 @@
+{
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate",
+    "accept-language": "en-GB,en;q=0.5",
+    "authorization": "SAPISIDHASH 1737410468_88fceff20323f609f69f9cf044119a8932d63753_u SAPISID1PHASH 1737410468_88fceff20323f609f69f9cf044119a8932d63753_u SAPISID3PHASH 1737410468_88fceff20323f609f69f9cf044119a8932d63753_u",
+    "content-encoding": "gzip",
+    "content-type": "application/json",
+    "cookie": "YSC=lGmYxbRg0gw; VISITOR_INFO1_LIVE=MIzONKPgJaw; VISITOR_PRIVACY_METADATA=CgJBVRIEGgAgDw%3D%3D; __Secure-ROLLOUT_TOKEN=COqRxuTSzvmAVBD29PCUpoWLAxj29PCUpoWLAw%3D%3D; SID=g.a000sghG2Ud9CkfVw03DtUosewQ2f2kHrNlSAnNF2HKBlYWs2P7bVpyHDTMgchadwkdZIL6AAAACgYKAQESARYSFQHGX2MihyRpzewbzk5nuHXdLxbq1RoVAUF8yKoA9vSCo-RSA8DlP2FySD3Y0076; __Secure-1PSIDTS=sidts-CjIBmiPuTRjdj26v8CsEsL9yAJdgqi8ekaROsPxw4Ipgh4PFDKbYp-VZ9UbyS3toZ1lB7xAA; __Secure-3PSIDTS=sidts-CjIBmiPuTRjdj26v8CsEsL9yAJdgqi8ekaROsPxw4Ipgh4PFDKbYp-VZ9UbyS3toZ1lB7xAA; __Secure-1PSID=g.a000sghG2Ud9CkfVw03DtUosewQ2f2kHrNlSAnNF2HKBlYWs2P7bTpkF1WRVbqjnfAlxGZFZowACgYKAc8SARYSFQHGX2Mi_PK4kxZK7h1pDev1sFph_BoVAUF8yKrF81M6Zqni1nNJGoC5ugoM0076; __Secure-3PSID=g.a000sghG2Ud9CkfVw03DtUosewQ2f2kHrNlSAnNF2HKBlYWs2P7bwC-vFukXjruS_hDJA7fcRwACgYKAVgSARYSFQHGX2Mi9K0kiZCJhFH2MHH1loh8QhoVAUF8yKr7yXF7lkqDbNKlJOV9EZC00076; HSID=AvSaGoCRQ8UoF8KwS; SSID=ACM_Tl_aBk50BmmKG; APISID=0qJ1Ap4WfgS7QX85/Av7ijjcoAbwGmq1sM; SAPISID=UzV15rkyGYdgCmX5/AxPbmC1XkIO8EgJCI; __Secure-1PAPISID=UzV15rkyGYdgCmX5/AxPbmC1XkIO8EgJCI; __Secure-3PAPISID=UzV15rkyGYdgCmX5/AxPbmC1XkIO8EgJCI; LOGIN_INFO=AFmmF2swRQIhAKQu8YpAYDldy3cs07YskP5a1TrZ1uzd49Csg67hPXYuAiB7YYhPqMSV06D77Qn13rgrs_ofsl9-yCajiAAc6N0dEA:QUQ3MjNmeFg1cS02NGRKclU5bzMxU2JpbjJwQ041cW9EMXFfNHdNYkVfRVBsWm5ETU1XWDNjdnctakZCYzlBSE5DRUFuYUYzUVV6dTNOYk42NVBrQlo4ZVE0ZkFmZWpuemJKOWsyVUdRMjVkTXdrU0lyUC1QOVQxeHJ1M0ZyZTNaMDNhcE9Nd0syeHJyMm10Vmdhd2xsazYtN0xOX2lwX2VR; PREF=repeat=NONE; SIDCC=AKEyXzWbcVSM2i0A0KWUqsrUrNghSU480j_HwJcB-MCbtnPpjfCBhcc61UkVhlvDfjN9czjYnA; __Secure-1PSIDCC=AKEyXzUUTWLmc0n5KNXoaYuOYVXHLo0BVv4HoF1hkiiaw8QJIRVu5S8ZoIYtLuVEbPdt5w0ojA; __Secure-3PSIDCC=AKEyXzXs41XjRam4lj5mzXKLftu9531g6XIo9JnWczwP8_X0isEAD2BY2Vy39wXT2AGw40HR0Q",
+    "origin": "https://music.youtube.com",
+    "priority": "u=1, i",
+    "referer": "https://music.youtube.com/",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0",
+    "x-goog-authuser": "0",
+    "x-goog-visitor-id": "CgtNSXpPTktQZ0phdyiSj7u8BjIKCgJBVRIEGgAgDw%3D%3D",
+    "x-origin": "https://music.youtube.com",
+    "x-youtube-bootstrap-logged-in": "true",
+    "x-youtube-client-name": "67",
+    "x-youtube-client-version": ""
+}

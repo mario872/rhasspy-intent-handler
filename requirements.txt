@@ -1,5 +1,8 @@
-pynput
 requests
-HomeAssistant-API
 fastapi[standard]
 uvicorn
+YouTubeMusicAPI
+ytmusicapi
+pynput
+pyannote.audio
+torch[cpu]

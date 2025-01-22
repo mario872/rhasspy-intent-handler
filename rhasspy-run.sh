@@ -1,0 +1,1 @@
+docker run -d --name rhasspy --restart unless-stopped -v "$HOME/.config/rhasspy/profiles:/profiles" -v "/etc/localtime:/etc/localtime:ro"  --network host --device /dev/snd:/dev/snd rhasspy/rhasspy --user-profiles /profiles --profile en

@@ -1,38 +1,38 @@
-from homeassistant_api import Client
+import requests
 from .secrets import api_url, access_token
 
 def ChangeLightState(entity=None, state=None):
-    with Client(api_url, access_token) as client:
-        light = client.get_domain("light")
-        if state == "on":
-            light.turn_on(entity_id=entity)
-            print("Turning on " + str(entity))
-            return "Turning on"
-        elif state == "off":
-            light.turn_off(entity_id=entity)
-            print("Turning off " + str(entity))
-            return "Turning off"
-        elif state == "toggle":
-            light.toggle(entity_id=entity)
-            print("Toggling " + str(entity))
-            return "Toggling"
-        else:
-            print("Invalid state")
+    headers = {"Authorization": "Bearer " + access_token, "Content-Type": "application/json"}
+    data = {"entity_id": entity}
+    if state == "on":
+        requests.post(api_url + "api/service/light/turn_on", headers=headers, json=data)
+        print("Turning on " + str(entity))
+        return "Turning on"
+    elif state == "off":
+        requests.post(api_url + "api/service/light/turn_off", headers=headers, json=data)
+        print("Turning off " + str(entity))
+        return "Turning off"
+    elif state == "toggle":
+        requests.post(api_url + "api/service/light/toggle", headers=headers, json=data)
+        print("Toggling " + str(entity))
+        return "Toggling"
+    else:
+        print("Invalid state")
 
 def ChangeCoverState(entity=None, state=None):
-    with Client(api_url, access_token) as client:
-        cover = client.get_domain("cover")
-        if state == "open":
-            cover.open_cover(entity_id=entity)
-            print("Opening " + str(entity))
-            return "Opening"
-        elif state == "close":
-            cover.close_cover(entity_id=entity)
-            print("Closing " + str(entity))
-            return "Closing"
-        elif state == "toggle":
-            cover.toggle(entity_id=entity)
-            print("Toggling " + str(entity))
-            return "Toggling"
-        else:
-            print("Invalid state")
+    headers = {"Authorization": "Bearer " + access_token, "Content-Type": "application/json"}
+    data = {"entity_id": entity}
+    if state == "open":
+        requests.post(api_url + "api/service/cover/open_cover", headers=headers, json=data)
+        print("Opening " + str(entity))
+        return "Opening"
+    elif state == "close":
+        requests.post(api_url + "api/service/cover/close_cover", headers=headers, json=data)
+        print("Closing " + str(entity))
+        return "Closing"
+    elif state == "toggle":
+        requests.post(api_url + "api/service/cover/toggle", headers=headers, json=data)
+        print("Toggling " + str(entity))
+        return "Toggling"
+    else:
+        print("Invalid state")

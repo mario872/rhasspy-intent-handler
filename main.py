@@ -1,20 +1,71 @@
+import logging
+import warnings
+#logging.disable(logging.INFO)
+logging.getLogger("speechbrain.utils").setLevel(logging.ERROR) 
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import torch
+from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbedding
+from pyannote.audio import Audio
+from pyannote.core import Segment
+from scipy.spatial.distance import cdist
 from fastapi import FastAPI, Request, File, UploadFile
 import subprocess
+import os
 import io
+import requests
 from functions import *
 
+# Initialise the web server
 app = FastAPI()
 
-def ChangeLightColor(color=None, name=None):
-    print(color, name)
+print("Initialising speaker verification model and audio processing...")
+# Initialize the speaker embedding model
+model = PretrainedSpeakerEmbedding(
+    "speechbrain/spkrec-ecapa-voxceleb",
+    device=torch.device("cpu")
+)
+audio_processor = Audio(sample_rate=16000, mono="downmix")
 
+reference_audio_files = os.listdir("voice_input")
+embeddings = []
+for audio_file in reference_audio_files:
+    waveform, sample_rate = audio_processor("voice_input/" + audio_file)
+    embedding = model(waveform[None])
+    # Convert numpy.ndarray to torch.Tensor
+    embeddings.append(torch.tensor(embedding))
+reference_embedding = torch.mean(torch.stack(embeddings), dim=0)
+print("Reference embeddings loaded.")
+
+
+def is_your_voice(threshold=0.4):
+    data = requests.get("http://127.0.0.0:12101/api/play-recording")
+    with open("output.wav", 'wb') as f:
+        f.write(data.content)  # Write the audio data to the file
+    waveform, sample_rate = audio_processor('output.wav')
+    test_embedding = model(waveform[None])
+    distance = cdist(reference_embedding, test_embedding, metric="cosine")[0][0]
+    os.remove("output.wav")  # Remove the temporary audio file
+    print("WAV Data recorded.")
+    if not distance < threshold:
+        return False
+    else:
+        return True
+
+# Server
 @app.post("/handle-intent")
-async def handle_intent(request: Request):
+async def handle_intent(request: Request):    
     json_request = await request.json()
     print(json_request)
-    print(globals())
     intent = json_request["intent"]["name"]
     params = json_request["slots"]
+    
+    if "SENSITIVE" in intent:
+        if not is_your_voice():
+            return {"speech": {"text": "Action locked by voice print."}}
+        else:
+            intent = intent.replace("SENSITIVE", "")  # Remove "SENSITIVE" from the intent name
+    
     if params != {}:
         response = globals()[intent](**params)
     else:
@@ -33,7 +84,9 @@ async def play_audio(request: Request):
         temp_file.seek(0)  # Reset file pointer to the beginning
         try:
             # Use aplay to play the audio data from the file
-            subprocess.run(["aplay", "-f", "cd"], input=temp_file.read(), check=True)
+            subprocess.run(["aplay", "-D", "default", "-f", "cd"], input=temp_file.read(), check=True)
             return {"message": "Audio played successfully"}
         except subprocess.CalledProcessError as e:
             return {"error": f"Error playing audio: {str(e)}"}
+        
+print("Server started.")
