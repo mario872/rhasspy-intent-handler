@@ -6,3 +6,4 @@ ytmusicapi
 pynput
 pyannote.audio
 torch[cpu]
+rhasspy-client

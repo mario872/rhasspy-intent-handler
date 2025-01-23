@@ -16,27 +16,35 @@ import io
 import requests
 from functions import *
 
+run_training_at_start = True # Set to True if you don't intend to edit these files very often, otherwise set to False
+
 # Initialise the web server
 app = FastAPI()
 
-print("Initialising speaker verification model and audio processing...")
-# Initialize the speaker embedding model
-model = PretrainedSpeakerEmbedding(
-    "speechbrain/spkrec-ecapa-voxceleb",
-    device=torch.device("cpu")
-)
-audio_processor = Audio(sample_rate=16000, mono="downmix")
+def train_model():
+    global model
+    global audio_processor
+    global reference_embedding
+    print("Initialising speaker verification model and audio processing...")
+    # Initialize the speaker embedding model
+    model = PretrainedSpeakerEmbedding(
+        "speechbrain/spkrec-ecapa-voxceleb",
+        device=torch.device("cpu")
+    )
+    audio_processor = Audio(sample_rate=16000, mono="downmix")
 
-reference_audio_files = os.listdir("voice_input")
-embeddings = []
-for audio_file in reference_audio_files:
-    waveform, sample_rate = audio_processor("voice_input/" + audio_file)
-    embedding = model(waveform[None])
-    # Convert numpy.ndarray to torch.Tensor
-    embeddings.append(torch.tensor(embedding))
-reference_embedding = torch.mean(torch.stack(embeddings), dim=0)
-print("Reference embeddings loaded.")
+    reference_audio_files = os.listdir("voice_input")
+    embeddings = []
+    for audio_file in reference_audio_files:
+        waveform, sample_rate = audio_processor("voice_input/" + audio_file)
+        embedding = model(waveform[None])
+        # Convert numpy.ndarray to torch.Tensor
+        embeddings.append(torch.tensor(embedding))
+    reference_embedding = torch.mean(torch.stack(embeddings), dim=0)
+    print("Reference embeddings loaded.")
 
+if run_training_at_start:
+    train_model()
 
 def is_your_voice(threshold=0.4):
     data = requests.get("http://127.0.0.0:12101/api/play-recording")
@@ -54,13 +62,17 @@ def is_your_voice(threshold=0.4):
 
 # Server
 @app.post("/handle-intent")
-async def handle_intent(request: Request):    
+async def handle_intent(request: Request):
+    global run_training_at_start    
     json_request = await request.json()
     print(json_request)
     intent = json_request["intent"]["name"]
     params = json_request["slots"]
     
     if "SENSITIVE" in intent:
+        if not run_training_at_start:
+            train_model()
+            run_training_at_start = True
         if not is_your_voice():
             return {"speech": {"text": "Action locked by voice print."}}
         else:
@@ -88,5 +100,6 @@ async def play_audio(request: Request):
             return {"message": "Audio played successfully"}
         except subprocess.CalledProcessError as e:
             return {"error": f"Error playing audio: {str(e)}"}
-        
+    
+GetMusicData()
 print("Server started.")

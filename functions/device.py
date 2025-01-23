@@ -7,13 +7,14 @@ from pynput.keyboard import Controller, Key
 import webbrowser
 import YouTubeMusicAPI
 from ytmusicapi import YTMusic#, OAuthCredentials
-from secrets import *
+from .secrets import *
+import requests
 
 ####################################################################################################################
 # Global Setup
 
 ytmusic = YTMusic()
-ytmusic = YTMusic('browser.json')
+ytmusic = YTMusic('secrets/browser.json')
 
 keyboard = Controller()
 
@@ -23,6 +24,20 @@ keyboard = Controller()
 
 ####################################################################################################################
 # Functions
+def Say(text=None, siteid="default"):
+    requests.post("http://127.0.0.1:12101/api/text-to-speech", json={"text": text, "siteId": siteid})
+        
+def SaveVoiceClip(location="./", index=None):
+    requests.post("http://127.0.0.1:12101/api/listen-for-command?nohass=True")
+    
+    data = requests.get("http://127.0.0.1:12101/api/play-recording")
+    if index is not None:
+        filename = "audio" + str(index)
+    else:
+        filename = "audio"
+    with open(location + filename + ".wav", 'wb') as f:
+        f.write(data.content)  # Write the audio data to the file
+
 def GetBatteryPercentage():
     if platform.system() == "Linux":
         battery_info = subprocess.check_output(["acpi", "-b"]).decode("utf-8").splitlines()
@@ -114,11 +129,10 @@ def GetMusicData():
     "cp ~/Code/rhasspy-intent-handler/output/artists ~/.config/rhasspy/profiles/en/slots/artists"
     print("Music data has been saved.")
     return "Music data has been saved."
-        
-GetMusicData()
 
 def PlayPauseMedia():
     keyboard.press(Key.media_play_pause)
     keyboard.release(Key.media_play_pause)
     
     return ""
+        

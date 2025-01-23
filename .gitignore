@@ -171,3 +171,7 @@ cython_debug/
 .pypirc
 
 functions/secrets.py
+secrets/**  */
+secrets/*
+secrets
+voice_input/
