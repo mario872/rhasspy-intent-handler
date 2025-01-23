@@ -34,6 +34,8 @@ def train_model():
     audio_processor = Audio(sample_rate=16000, mono="downmix")
 
     reference_audio_files = os.listdir("voice_input")
+    if "placeholder.txt" in reference_audio_files:
+        reference_audio_files.remove("placeholder.txt")
     embeddings = []
     for audio_file in reference_audio_files:
         waveform, sample_rate = audio_processor("voice_input/" + audio_file)

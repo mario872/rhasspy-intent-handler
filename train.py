@@ -18,7 +18,9 @@ def TrainVoicePassword():
         SaveVoiceClip(location="voice_input/", index=_)
 
 def TrainSpeakerVerificationModelAndPassword():
-    sentences = ["This is my name and it is totally my name. I am really happy.", "I am totally the person I say I am, and I am really sad.", "A bear is only dangerous in the winter because that is when it is hibernating."]
+    TrainVoicePassword()
+    
+    sentences = ["This is my name and it is totally my name.", "I am totally the person I say I am.", "A bear is only dangerous in the winter because that is when it is hibernating.", "Rabbits are scary."]
     print(f"You will say {num2words(len(sentences))} different sentences, and your voice password five times.")
     i = 5
     for sentence in sentences:
@@ -26,7 +28,6 @@ def TrainSpeakerVerificationModelAndPassword():
         input()
         SaveVoiceClip(location="voice_input/", index=i)
         i += 1
-    TrainVoicePassword()
     
 if args.train_model:
     TrainSpeakerVerificationModelAndPassword()
