@@ -43,8 +43,8 @@ def GetBatteryPercentage():
         battery_info = subprocess.check_output(["acpi", "-b"]).decode("utf-8").splitlines()
         for battery in battery_info:
             if "unavailable" not in battery:
-                battery_percentage = int(battery_info.split(":")[1].split(", ")[1])
-        return battery_percentage
+                battery_percentage = int(battery.split(":")[1].split(", ")[1].replace("%", ''))
+        return f"Battery is at {str(battery_percentage)} percent"
     else:
         raise NotImplementedError("Battery Percentage Retrieval has not been implemented on Windows yet")
 

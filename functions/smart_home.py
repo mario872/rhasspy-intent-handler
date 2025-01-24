@@ -5,16 +5,16 @@ def ChangeLightState(entity=None, state=None):
     headers = {"Authorization": "Bearer " + access_token, "Content-Type": "application/json"}
     data = {"entity_id": entity}
     if state == "on":
-        requests.post(api_url + "api/service/light/turn_on", headers=headers, json=data)
-        print("Turning on " + str(entity))
+        resp = requests.post(api_url + "api/services/light/turn_on", headers=headers, json=data)
+        print("Turning on " + str(entity) + " with status code: " + str(resp.status_code))
         return "Turning on"
     elif state == "off":
-        requests.post(api_url + "api/service/light/turn_off", headers=headers, json=data)
-        print("Turning off " + str(entity))
+        resp = requests.post(api_url + "api/services/light/turn_off", headers=headers, json=data)
+        print("Turning off " + str(entity) + " with status code: " + str(resp.status_code))
         return "Turning off"
     elif state == "toggle":
-        requests.post(api_url + "api/service/light/toggle", headers=headers, json=data)
-        print("Toggling " + str(entity))
+        resp = requests.post(api_url + "api/services/light/toggle", headers=headers, json=data)
+        print("Toggling " + str(entity) + "with status code: " + str(resp.status_code))
         return "Toggling"
     else:
         print("Invalid state")
@@ -23,16 +23,16 @@ def ChangeCoverState(entity=None, state=None):
     headers = {"Authorization": "Bearer " + access_token, "Content-Type": "application/json"}
     data = {"entity_id": entity}
     if state == "open":
-        requests.post(api_url + "api/service/cover/open_cover", headers=headers, json=data)
-        print("Opening " + str(entity))
+        resp = requests.post(api_url + "api/services/cover/open_cover", headers=headers, json=data)
+        print("Opening " + str(entity) + " with status code: " + str(resp.status_code))
         return "Opening"
     elif state == "close":
-        requests.post(api_url + "api/service/cover/close_cover", headers=headers, json=data)
-        print("Closing " + str(entity))
+        resp = requests.post(api_url + "api/services/cover/close_cover", headers=headers, json=data)
+        print("Closing " + str(entity) + " with status code: " + str(resp.status_code))
         return "Closing"
     elif state == "toggle":
-        requests.post(api_url + "api/service/cover/toggle", headers=headers, json=data)
-        print("Toggling " + str(entity))
+        resp = requests.post(api_url + "api/services/cover/toggle", headers=headers, json=data)
+        print("Toggling " + str(entity) + "with status code: " + str(resp.status_code))
         return "Toggling"
     else:
         print("Invalid state")

@@ -48,7 +48,7 @@ def train_model():
 if run_training_at_start:
     train_model()
 
-def is_your_voice(threshold=0.4):
+def is_your_voice(threshold=0.5):
     data = requests.get("http://127.0.0.0:12101/api/play-recording")
     with open("output.wav", 'wb') as f:
         f.write(data.content)  # Write the audio data to the file
