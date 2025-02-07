@@ -9,45 +9,42 @@ from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbed
 from pyannote.audio import Audio
 from pyannote.core import Segment
 from scipy.spatial.distance import cdist
-from fastapi import FastAPI, Request, File, UploadFile
+from fastapi import FastAPI, Request, File, UploadFile, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 import subprocess
 import os
 import io
 import requests
+from paho.mqtt import client as mqtt_client
+from functions.secrets import *
 from functions import *
+import asyncio
+from openai import OpenAI
+from pyper import Pyper
+import uvicorn
+import time
 
-run_training_at_start = True # Set to True if you don't intend to edit these files very often, otherwise set to False
+os.environ["HF_HUB_OFFLINE"] = "1"
+
+piper = Pyper(piper_model_path)
+
+run_training_at_start = True # For rapid testing without the need to test the voice password, set to False, otherwise set it to True
 
 # Initialise the web server
 app = FastAPI()
 
-def train_model():
-    global model
-    global audio_processor
+def load_model():
     global reference_embedding
-    print("Initialising speaker verification model and audio processing...")
-    # Initialize the speaker embedding model
+    global audio_processor
+    global model
+    reference_embedding = torch.load("reference_embeddings.pt")
+    audio_processor = Audio(sample_rate=16000, mono="downmix")
     model = PretrainedSpeakerEmbedding(
         "speechbrain/spkrec-ecapa-voxceleb",
         device=torch.device("cpu")
     )
-    audio_processor = Audio(sample_rate=16000, mono="downmix")
-
-    reference_audio_files = os.listdir("voice_input")
-    if "placeholder.txt" in reference_audio_files:
-        reference_audio_files.remove("placeholder.txt")
-    embeddings = []
-    for audio_file in reference_audio_files:
-        waveform, sample_rate = audio_processor("voice_input/" + audio_file)
-        embedding = model(waveform[None])
-        # Convert numpy.ndarray to torch.Tensor
-        embeddings.append(torch.tensor(embedding))
-    reference_embedding = torch.mean(torch.stack(embeddings), dim=0)
-    print("Reference embeddings loaded.")
-
-if run_training_at_start:
-    train_model()
-
+    
 def is_your_voice(threshold=0.5):
     data = requests.get("http://127.0.0.0:12101/api/play-recording")
     with open("output.wav", 'wb') as f:
@@ -73,7 +70,7 @@ async def handle_intent(request: Request):
     
     if "SENSITIVE" in intent:
         if not run_training_at_start:
-            train_model()
+            load_model()
             run_training_at_start = True
         if not is_your_voice():
             return {"speech": {"text": "Action locked by voice print."}}
@@ -102,6 +99,67 @@ async def play_audio(request: Request):
             return {"message": "Audio played successfully"}
         except subprocess.CalledProcessError as e:
             return {"error": f"Error playing audio: {str(e)}"}
+
+@app.post("/text-to-speech")
+async def text_to_speech(request: Request):
+    data = await request.body()
+    data = data.decode()
     
-GetMusicData()
-print("Server started.")
+    piper.save(data, "output.wav")
+    
+    with open("output.wav", 'rb') as audio_file:
+        audio = audio_file.read()
+        
+    return Response(content=audio, media_type="media/wav")
+    
+    
+def chatgpt_fallback():
+    audio_data = requests.get("http://127.0.0.1:12101/api/play-recording")
+    with open("tmp.wav", 'wb') as f:
+        f.write(audio_data.content)  # Write the audio data to the file
+    with open("tmp.wav", 'rb') as audio_file:
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file
+        )
+    
+    response = chatgpt("You are a fallback system for the Rhassy assistant, with the persona of Jarvis from Iron Man, but you cannot currently call any on device functions, although you can answer world questions. Answer with as short a repsonse as you can, always in English. When the user says terminate or some similar phrase, do not respond at all.", transcription.text)
+    print(response)
+    os.remove("tmp.wav")  # Remove the temporary audio file
+    Say(response)
+
+#GetMusicData()
+#print("Server started.")
+
+async def mqtt_subscribe():
+    def on_mqtt_connect(client, userdata, flags, rc):
+        client.subscribe("hermes/nlu/intentNotRecognized")
+
+    def on_mqtt_message(client, userdata, msg):
+        if msg.topic == "hermes/nlu/intentNotRecognized":
+            print(msg.payload.decode())
+            chatgpt_fallback()
+    
+    client = mqtt_client.Client()
+    client.on_connect = on_mqtt_connect
+    client.on_message = on_mqtt_message
+
+    client.connect(mqtt_broker, mqtt_port)
+    time.sleep(1)
+    client.loop_start()
+
+    while True:
+        await asyncio.sleep(1)
+    
+@app.on_event("startup")
+async def startup_event():
+    start = time.time()
+    if run_training_at_start:
+        load_model()
+    asyncio.create_task(mqtt_subscribe())
+    print("Server started in " + str(time.time() - start) + "seconds.")
+
+
+if __name__ == "__main__":
+    print("Starting the server...")
+    uvicorn.run(app, host="0.0.0.0", port=2010)

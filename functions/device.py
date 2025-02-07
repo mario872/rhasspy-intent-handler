@@ -9,6 +9,9 @@ import YouTubeMusicAPI
 from ytmusicapi import YTMusic#, OAuthCredentials
 from .secrets import *
 import requests
+import os
+import psutil
+import subprocess
 
 ####################################################################################################################
 # Global Setup
@@ -24,19 +27,8 @@ keyboard = Controller()
 
 ####################################################################################################################
 # Functions
-def Say(text=None, siteid="default"):
-    requests.post("http://127.0.0.1:12101/api/text-to-speech", json={"text": text, "siteId": siteid})
-        
-def SaveVoiceClip(location="./", index=None):
-    requests.post("http://127.0.0.1:12101/api/listen-for-command?nohass=True")
-    
-    data = requests.get("http://127.0.0.1:12101/api/play-recording")
-    if index is not None:
-        filename = "audio" + str(index)
-    else:
-        filename = "audio"
-    with open(location + filename + ".wav", 'wb') as f:
-        f.write(data.content)  # Write the audio data to the file
+def Say(text=None, siteid="master"):
+    requests.post("http://127.0.0.1:12101/api/text-to-speech", json=text)#, "siteId": siteid})
 
 def GetBatteryPercentage():
     if platform.system() == "Linux":
@@ -59,6 +51,18 @@ def UnlockScreen():
         subprocess.run(["loginctl", "unlock-session"])
     else:
         raise NotImplementedError("Screen Unlocking has not been implemented on Windows yet")
+    
+def Shutdown():
+    if platform.system() == "Linux":
+        subprocess.run(["shutdown", "-h", "now"])
+    else:
+        raise NotImplementedError("Shutting Down has not been implemented on Windows yet")
+    
+def Restart():
+    if platform.system() == "Linux":
+        subprocess.run(["reboot"])
+    else:
+        raise NotImplementedError("Restarting has not been implemented on Windows yet")
     
 def PlayMusic(title=None, artist=None):
     query = ""
@@ -118,16 +122,20 @@ def GetMusicData():
     
     titles += ")"
     artists += ")"
-    
-    with open("output/titles", 'w') as f:
-        f.writelines(titles)
-    
-    with open("output/artists", 'w') as f:
-        f.writelines(artists)
         
-    "cp ~/Code/rhasspy-intent-handler/output/titles ~/.config/rhasspy/profiles/en/slots/titles"
-    "cp ~/Code/rhasspy-intent-handler/output/artists ~/.config/rhasspy/profiles/en/slots/artists"
+    #shutil.copyfile("output/titles", "~/.config/rhasspy/profiles/en/slots/titles.test")
+    #shutil.copyfile("output/artists", "~/.config/rhasspy/profiles/en/slots/artists.test")
+    slots = requests.get("http://127.0.0.1:12101/api/slots").json()
+    slots["titles"] = [titles,]
+    slots["artists"] = [artists,]
+    requests.post("http://127.0.0.1:12101/api/slots?overwrite_all=true", json=slots).text
+    #subprocess.run("cp ~/Code/rhasspy-intent-handler/output/titles ~/.config/rhasspy/profiles/en/slots/")
+    #subprocess.run("cp ~/Code/rhasspy-intent-handler/output/artists ~/.config/rhasspy/profiles/en/slots/")
     print("Music data has been saved.")
+    
+    requests.post("http://127.0.0.1:12101/api/train")
+    print("Rhasspy has been re-trained")
+    
     return "Music data has been saved."
 
 def PlayPauseMedia():
@@ -136,3 +144,54 @@ def PlayPauseMedia():
     
     return ""
         
+def SkipMedia():
+    keyboard.press(Key.media_next)
+    keyboard.release(Key.media_next)
+    
+    return ""
+
+def PreviousMedia():
+    keyboard.press(Key.media_previous)
+    keyboard.release(Key.media_previous)
+    
+    return ""
+
+def VolumeUp():
+    keyboard.press(Key.media_volume_up)
+    keyboard.release(Key.media_volume_up)
+    
+    return ""
+
+def VolumeDown():
+
+    keyboard.press(Key.media_volume_down)
+    keyboard.release(Key.media_volume_down)
+    
+    return ""
+
+def CloseTab():
+    keyboard.press(Key.ctrl)
+    keyboard.press("w")
+    keyboard.release("w")
+    keyboard.release(Key.ctrl)
+    
+    return ""
+
+def OpenApp(app):
+    command = apps[app]["command"]
+    subprocess.Popen(f"nohup {command} > /dev/null 2>&1 &", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+def CloseApp(app):
+    if apps[app]['other_names'] != []:
+        names = apps[app]['other_names']
+        names.append(app)
+    else:
+        names = [app]
+    for process in psutil.process_iter():
+        for name in names:
+            if name in process.name():
+                print('Process found. Terminating it.')
+                process.terminate()
+                
+def SetReminder(name, time=None):
+    pass

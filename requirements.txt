@@ -7,3 +7,6 @@ pynput
 pyannote.audio
 torch[cpu]
 rhasspy-client
+paho-mqtt
+pyowm
+imap_tools

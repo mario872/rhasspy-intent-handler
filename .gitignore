@@ -171,11 +171,9 @@ cython_debug/
 .pypirc
 
 functions/secrets.py
-<<<<<<< HEAD
 secrets/**  */
 secrets/*
 secrets
 voice_input/
-=======
-voice_input/
->>>>>>> a7fb7ef3709b6dfe77e638084af957f00c1c8383
+output.wav
+reference_embeddings.pt

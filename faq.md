@@ -13,4 +13,7 @@ Place some recordings of your voice around five seconds each to then train to te
 
 **What is train.py for?**
 This script is used to get audio recordings of your voice and then used to train a model to recognise those recordings.
-Usage: `python3 train.py --train-model` will train the model and your voie password, `python3 train.py --voice-password` will only record for the voice password. It will record over previous voice password recordings if they exist.
+Usage: `python3 train.py --train-model` will train and save the model, `python3 train.py --save-voice-password` will only record for the voice password. It will record over previous voice password recordings if they exist. `python3 train.py --save-clips` will record the voice password and a few extra clips for training, like shutdown, restart and reboot.
+
+**pyowm.commons.exceptions.UnauthorizedError: Invalid API Key provided**
+Either, you need to register a new API key, as legacy ones have been blocked from using the One Call API v3.0. Or you need to edit `python3.version/site-packages/pyowm/weatherapi25/uris.py`. Change the line that says: `ROOT_WEATHER_API = 'openweathermap.org/data/2.5'` to `ROOT_WEATHER_API = 'openweathermap.org/data/2.5'`
